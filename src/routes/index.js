@@ -4,7 +4,7 @@ module.exports = (app) => {
 
   router.post("/", tutorialControllers.create);
   router.get("/", tutorialControllers.findAll);
-  router.get("/:id", tutorialControllers.findOne);
+  router.get("/title/:id", tutorialControllers.findOne);
   router.patch("/", tutorialControllers.update);
   router.delete("/:id", tutorialControllers.deleteOne);
   router.delete("/", tutorialControllers.deleteAll);
