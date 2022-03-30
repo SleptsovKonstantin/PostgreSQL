@@ -4,82 +4,120 @@ const db = require("../models");
 const Tutorial = db.tutorials;
 
 exports.create = (req, res) => {
-  const body = req.body;
   const { title, description, published } = req.body;
-  const tutorial = {
-    title,
-    description,
-    published: published ? published : false,
-  };
-  try {
-    if (
-      body.hasOwnProperty("title") &&
-      body.hasOwnProperty("description") &&
-      body.hasOwnProperty("published")
-    ) {
-      Tutorial.create(tutorial).then((data) => {
-        res.send(data);
-      });
-    } else {
-      res.status(422).send("Error! Params not correct");
-    }
-  } catch (err) {
-    console.log(`Errrror ${err}`);
+  if (title && description && published) {
+    const tutorial = {
+      title,
+      description,
+      published: published ? published : false,
+    };
+    Tutorial.create(tutorial).then((data) => {
+      res.send(data);
+    });
+  } else {
+    res.send({
+      message: `Create new task was failing, because body is empty. Please check the data you send.`,
+    });
   }
 };
 
 exports.findAll = (req, res) => {
-  try {
-    Tutorial.findAll().then((data) => {
+  Tutorial.findAll()
+    .then((data) => {
       res.send(data);
+    })
+    .catch((err) => {
+      res.send({ message: `id is not in the database` });
     });
-  } catch (error) {
-    res.status(422).send("Error! Params not correct");
-  }
 };
 
 exports.findOne = (req, res) => {
   const { id } = req.params;
-  console.log(typeof +id);
-  if (+id !== 0) {
-    Tutorial.findByPk(id)
-      .then((data) => {
+  Tutorial.findByPk(id)
+    .then((data) => {
+      if (data) {
         res.send(data);
-      })
-      .catch((error) => {
-        res.status(404).send("Error");
-      });
-  }else{
-    res.status(422).send("Error! Params not correct");
-  }
+      } else {
+        res.send({ message: `id is not in the database` });
+      }
+    })
+    .catch((err) => {
+      res.send({ message: `Error.you need to enter a number` });
+    });
 };
 
 exports.update = (req, res) => {
   const body = req.body;
-  const { id, title } = body;
-  Tutorial.update({ title }, { where: { id: id } }).then(() => {
-    Tutorial.findAll().then((data) => {
-      res.send(data);
+  const { id } = body;
+  if (
+    id &&
+    (body.hasOwnProperty("title") ||
+      body.hasOwnProperty("description") ||
+      body.hasOwnProperty("published"))
+  ) {
+    Tutorial.update(body, { where: { id } }).then((result) => {
+      if (result == 1) {
+        Tutorial.findAll({
+          order: [["id", "ASC"]],
+        })
+          .then((data) => {
+            res.send(data);
+          })
+          .catch((err) => console.log("Error", err));
+      } else {
+        res.send({
+          message: `id=${id} not found in database. Check if id is correct`,
+        });
+      }
     });
-  });
+  } else {
+    res.send({
+      message: `id=${id} is empty.`,
+    });
+  }
 };
 
 exports.deleteOne = (req, res) => {
   const { id } = req.params;
-  Tutorial.destroy({ where: { id: id } }).then((data) => {
-    res.send(data);
-  });
+  if (id) {
+    Tutorial.destroy({ where: { id } })
+      .then((data) => {
+        if (data) {
+          res.send(data);
+        } else {
+          res.send({ message: `id is not in the database` });
+        }
+      })
+      .catch((err) => {
+        res.send({ message: `Error.you need to enter a number` });
+      });
+  } else {
+    res.send({ message: `Error. Empty id` });
+  }
 };
 
 exports.deleteAll = (req, res) => {
-  Tutorial.destroy({ where: {} }).then(() => {
-    res.send([]);
-  });
+  Tutorial.destroy({ where: {} })
+    .then(() => {
+      res.send([]);
+    })
+    .catch((err) => {
+      res.send({ message: `Error. check request url` });
+    });
 };
 
 exports.findTitle = (req, res) => {
   const { title } = req.params;
-  Tutorial.findAll({ where: { title: title } }).then((data) => {
-    res.send(data);
-  });
+  Tutorial.findAll({ where: { title } })
+    .then((data) => {
+      if (data.length !== 0) {
+        console.log(data);
+        res.send(data);
+      } else {
+        res.send({ message: `Error. Not title` });
+      }
+    })
+    .catch((err) => {
+      res.send({ message: `Error.you need to enter a number` });
+    });
 };

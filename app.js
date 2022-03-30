@@ -10,7 +10,7 @@ require("./src/routes/index")(app);
 
 db.sequelize.sync();  //{force: true} для удаления
 
-const PORT = 8080;
+const PORT = 8000;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}.`);
 });
