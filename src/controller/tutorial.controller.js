@@ -22,7 +22,9 @@ exports.create = (req, res) => {
 };
 
 exports.findAll = (req, res) => {
-  Tutorial.findAll()
+  Tutorial.findAll({
+    order: ["id"],
+  })
     .then((data) => {
       res.send(data);
     })
@@ -111,7 +113,6 @@ exports.findTitle = (req, res) => {
   Tutorial.findAll({ where: { title } })
     .then((data) => {
       if (data.length !== 0) {
-        console.log(data);
         res.send(data);
       } else {
         res.send({ message: `Error. Not title` });
