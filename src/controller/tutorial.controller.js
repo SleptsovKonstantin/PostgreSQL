@@ -60,12 +60,14 @@ exports.update = (req, res) => {
     Tutorial.update(body, { where: { id } }).then((result) => {
       if (result == 1) {
         Tutorial.findAll({
-          order: [["id", "ASC"]],
+          order: [["id"]],
         })
           .then((data) => {
             res.send(data);
           })
-          .catch((err) => console.log("Error", err));
+          .catch((err) => {
+            res.send({ message: `Error` });
+          });
       } else {
         res.send({
           message: `id=${id} not found in database. Check if id is correct`,
